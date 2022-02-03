@@ -1,5 +1,6 @@
 #Apps migarations
 places/migrations/*.*
+.git_token
 
 
 # Byte-compiled / optimized / DLL files
