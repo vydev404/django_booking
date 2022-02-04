@@ -5,9 +5,8 @@ from .models import City, District, Location, LocationImages
 
 
 class LocationAdmin(admin.ModelAdmin):
-
-    search_fields = ['district', 'title', 'address']
-    ordering = ['title', 'district', 'owner']
+    search_fields = ['district', 'name', 'address']
+    ordering = ['name', 'district', ]
 
 
 admin.site.register(City)

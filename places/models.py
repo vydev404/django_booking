@@ -1,12 +1,8 @@
-import datetime
-
 from django.db import models
-from django.utils import timezone
-from datetime import datetime
 
 
 class City(models.Model):
-    "Выбор города для поиска"
+    """Выбор города для поиска"""
     name = models.CharField('City', max_length=64, blank=False, null=False, unique=True)
     slug = models.SlugField(unique=True)
 
@@ -14,67 +10,58 @@ class City(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'City'
-        verbose_name_plural = 'Cities'
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
 
 
 class District(models.Model):
-    "Район города"
-    name = models.CharField('District name', max_length=128, blank=False, null=False)
-    city_location = models.ForeignKey(City, verbose_name='District of city', on_delete=models.CASCADE)
-    description = models.TextField('District description', default='')
-    slug = models.SlugField(max_length=64, unique=True)
+    """Район города"""
+    name = models.CharField(max_length=64, )
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'District'
-        verbose_name_plural = 'Districts'
+        verbose_name = 'Район'
+        verbose_name_plural = 'Районы'
 
 
 class LocationOwner(models.Model):
-    "Владелец локации"
-    username = models.CharField(max_length=32, verbose_name='Owner username', null=False)
-    first_name = models.CharField(max_length=32, verbose_name='Owner 1st name', null=False)
-    second_name = models.CharField(max_length=32, verbose_name='Owner 2nd name', null=False)
-
-    organization = models.CharField(max_length=32, verbose_name='Organization name', null=False)
-
-    email = models.EmailField()
-
-    def __str__(self):
-        return '{} {}'.format(self.first_name, self.second_name)
+    """Владелец локации"""
 
 
 # class LocationCard(models.Model):
 #     rating =
 
 class Location(models.Model):
-    "Модель с данными локации"
+    """Модель с данными локации"""
+    name = models.CharField(max_length=64, )
+    district = models.ForeignKey(District, on_delete=models.SET_DEFAULT, default='None')
+    address = models.CharField(max_length=64)
+    start_work_time = models.TimeField(verbose_name='Start time')
+    end_work_time = models.TimeField(verbose_name='End time')
 
-    district = models.ForeignKey(District,
-                                 verbose_name='District of location',
-                                 on_delete=models.SET_NULL,
-                                 null=True
-                                 )
-    address = models.CharField('Address', max_length=256, null=False)
-    title = models.CharField(max_length=256, verbose_name='Location name')
+    price = models.PositiveIntegerField(default=0)
+
+    telephone = models.CharField(max_length=20, blank=True)
+
+    google_maps_url = models.URLField()
+    site_url = models.URLField(blank=True, null=True)
+
+    description = models.TextField(blank=True, )
+    main_image = models.ImageField(blank=True, null=True, upload_to="media/images/locations")
+
+    services = models.ManyToManyField('LocationService', )
+
+    optional_services = models.ManyToManyField('OptionalService', )
+
     slug = models.SlugField()
-    short_description = models.TextField(max_length=256)
-    description = models.TextField(verbose_name='Location description', null=True)
-    image_main = models.ImageField('Photo', upload_to='img/locations/')
-    #image_pool = models.ManyToOneRel('Album with images', LocationImages)
 
-    creation_time = models.DateTimeField('Created', default=timezone.now)
-
-    owner = models.ForeignKey(LocationOwner, on_delete=models.SET_NULL, null=True)
-
-    location_site_or_maps_link = models.URLField('Site link')
-    google_coordinates = models.CharField(max_length=128)
+    checked = models.BooleanField(default=False, editable=True)
+    published = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return self.name
 
     class Meta:
         verbose_name = 'Location'
@@ -82,12 +69,11 @@ class Location(models.Model):
 
 
 class LocationImages(models.Model):
-    "Галерея изображений локации"
-    name = models.CharField(verbose_name='Name', max_length=256)
-    description = models.TextField(verbose_name='Description', null=True, default='')
-    image = models.ImageField('Photo', upload_to='img/locations_gallery/', blank=True)
-    location = models.ForeignKey(Location, verbose_name='photo', on_delete=models.CASCADE, null=True)
-    size = models.PositiveIntegerField('Size', default=0)
+    """Галерея изображений локации"""
+    name = models.CharField(max_length=64)
+    description = models.CharField(max_length=256)
+    image = models.ImageField(verbose_name="Photo", upload_to="media/images/location_photos")
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -96,3 +82,36 @@ class LocationImages(models.Model):
         verbose_name = 'Location photo'
         verbose_name_plural = 'Location photos'
 
+
+class LocationService(models.Model):
+    name = models.CharField(max_length=64, blank=False, null=False)
+    description = models.CharField(max_length=256)
+    distributors = models.ManyToManyField('Location', )
+    slug = models.SlugField(unique=True)
+
+
+class OptionalService(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.CharField(max_length=256)
+    location = models.ManyToManyField(Location, )
+
+
+class Review(models.Model):
+    email = models.EmailField(verbose_name='Email', blank=False)
+    username = models.CharField(verbose_name='Username', max_length=64, blank=False)
+    text = models.TextField(verbose_name='Review', max_length=500)
+    comment_review = models.ForeignKey('Review', on_delete=models.CASCADE)
+
+
+class RatingStar(models.Model):
+    value = models.FloatField(null=True, default=0)
+
+
+class Rating(models.Model):
+    ip = models.GenericIPAddressField(verbose_name='IP', )
+    stars = models.ForeignKey(RatingStar, null=True, default=0, on_delete=models.SET_DEFAULT)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, )
+
+# class RatingGoogle(models.Model):
+#
+# class  ReviewGoogle(models.Model):
