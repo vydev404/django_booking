@@ -1,22 +1,25 @@
 from django.db import models
 
 
-class City(models.Model):
-    """Выбор города для поиска"""
-    name = models.CharField('City', max_length=64, blank=False, null=False, unique=True)
-    slug = models.SlugField(unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Город'
-        verbose_name_plural = 'Города'
+# class City(models.Model):
+#     """Выбор города для поиска"""
+#     name = models.CharField('City', max_length=64, blank=False, null=False, unique=True)
+#     slug = models.SlugField(unique=True)
+#
+#     def __str__(self):
+#         return self.name
+#
+#     class Meta:
+#         verbose_name = 'Город'
+#         verbose_name_plural = 'Города'
 
 
 class District(models.Model):
     """Район города"""
+    district_id = models.IntegerField(unique=True, null=True)
     name = models.CharField(max_length=64, )
+
+    #    city = models.ForeignKey(City, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -28,6 +31,8 @@ class District(models.Model):
 
 class LocationOwner(models.Model):
     """Владелец локации"""
+
+    # сделать набросок полей
 
 
 # class LocationCard(models.Model):
@@ -64,8 +69,8 @@ class Location(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Location'
-        verbose_name_plural = 'Locations'
+        verbose_name = 'Локация'
+        verbose_name_plural = 'Локации'
 
 
 class LocationImages(models.Model):
@@ -79,8 +84,8 @@ class LocationImages(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Location photo'
-        verbose_name_plural = 'Location photos'
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
 
 
 class LocationService(models.Model):
@@ -104,7 +109,7 @@ class OptionalService(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Дполнительная услуга'
+        verbose_name = 'Дополнительная услуга'
         verbose_name_plural = 'Дополнительные услуги'
 
 
@@ -138,7 +143,7 @@ class RatingStar(models.Model):
         return self.value
 
     class Meta:
-        verbose_name = 'Звезд'
+        verbose_name = 'Звезды'
         verbose_name_plural = 'Звезды'
 
 
