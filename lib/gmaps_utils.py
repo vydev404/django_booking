@@ -4,6 +4,10 @@
 """ Модуль для парсинга google maps"""
 
 
+def get_location_coordinates(address):
+    return "0,0:0,0"
+
+
 def create_google_maps_item(url):
     pass
 

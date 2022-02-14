@@ -1,17 +1,6 @@
 from django.db import models
-
-
-# class City(models.Model):
-#     """Выбор города для поиска"""
-#     name = models.CharField('City', max_length=64, blank=False, null=False, unique=True)
-#     slug = models.SlugField(unique=True)
-#
-#     def __str__(self):
-#         return self.name
-#
-#     class Meta:
-#         verbose_name = 'Город'
-#         verbose_name_plural = 'Города'
+from django_booking.lib.pricing import get_average_price
+from django_booking.lib.gmaps_utils import get_location_coordinates
 
 
 class District(models.Model):
@@ -29,27 +18,59 @@ class District(models.Model):
         verbose_name_plural = 'Районы'
 
 
-class LocationOwner(models.Model):
-    """Владелец локации"""
+class RestingPlaceOwner(models.Model):
+    """Владелец места отдыха"""
+    # Контактная информация
+    name = models.CharField(max_length=64, )
+    email = models.EmailField(blank=True, )
+    telephone = models.CharField(max_length=20, unique=True)
 
-    # сделать набросок полей
+    about = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Владелец'
+        verbose_name_plural = 'Владельцы'
 
 
-# class LocationCard(models.Model):
-#     rating =
+class LocationRestingPlace(models.Model):
+    """Место отдыха """
+    title = models.CharField(max_length=64, )
+
+    description = models.TextField(blank=True, )
+    images = models.ImageField(blank=True, null=True, upload_to="media/images/resting_places")
+
+    services = models.ManyToManyField('LocationService', )
+    start_work_time = models.TimeField(verbose_name='Start time', default='NULL')
+    end_work_time = models.TimeField(verbose_name='End time', default='NULL')
+    slug = models.SlugField()
+
+    owner = models.ForeignKey(RestingPlaceOwner, on_delete=models.SET_DEFAULT, default='Нет владельца')
+    google_maps_url = models.URLField(blank=True, null=True)
+    site_url = models.URLField(blank=True, null=True)
+    # Status
+    checked = models.BooleanField(default=False, editable=True)
+    published = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Место отдыха'
+        verbose_name_plural = 'Места отдыха'
+
 
 class Location(models.Model):
     """Модель с данными локации"""
     name = models.CharField(max_length=64, )
     district = models.ForeignKey(District, on_delete=models.SET_DEFAULT, default='None')
     address = models.CharField(max_length=64)
-    start_work_time = models.TimeField(verbose_name='Start time', default='NULL')
-    end_work_time = models.TimeField(verbose_name='End time', default='NULL')
 
-    price = models.PositiveIntegerField(default=0)
+    average_price = models.PositiveIntegerField(default=get_average_price)
 
-    telephone = models.CharField(max_length=20, blank=True)
-
+    coordinates = models.CharField(max_length=128, default=get_location_coordinates(address))
     google_maps_url = models.URLField(blank=True, null=True)
     site_url = models.URLField(blank=True, null=True)
 
@@ -161,3 +182,15 @@ class Rating(models.Model):
 # class RatingGoogle(models.Model):
 #
 # class  ReviewGoogle(models.Model):
+
+# class City(models.Model):
+#     """Выбор города для поиска"""
+#     name = models.CharField('City', max_length=64, blank=False, null=False, unique=True)
+#     slug = models.SlugField(unique=True)
+#
+#     def __str__(self):
+#         return self.name
+#
+#     class Meta:
+#         verbose_name = 'Город'
+#         verbose_name_plural = 'Города'
