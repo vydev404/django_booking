@@ -6,4 +6,4 @@
 
 def get_average_price():
     """ Получение средней цены из все мес отдыха"""
-    return 400  # plug
+    return 400

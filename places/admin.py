@@ -9,10 +9,12 @@ class LocationAdmin(admin.ModelAdmin):
     ordering = ['name', 'district', ]
 
 
-admin.site.register(City)
 admin.site.register(District)
+admin.site.register(LocationRestingPlace)
+admin.site.register(RestingPlaceOwner)
+admin.site.register(Location)
 admin.site.register(LocationImages)
-admin.site.register(Location, LocationAdmin)
+
 admin.site.register(Rating)
 admin.site.register(RatingStar)
 admin.site.register(Review)

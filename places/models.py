@@ -1,14 +1,12 @@
 from django.db import models
-from django_booking.lib.pricing import get_average_price
-from django_booking.lib.gmaps_utils import get_location_coordinates
+from lib.pricing import get_average_price
+from lib.gmaps_utils import get_location_coordinates
 
 
 class District(models.Model):
     """Район города"""
-    district_id = models.IntegerField(unique=True, null=True)
+    district_id = models.IntegerField(unique=True, default=models.SET_NULL, null=True)
     name = models.CharField(max_length=64, )
-
-    #    city = models.ForeignKey(City, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -24,7 +22,7 @@ class RestingPlaceOwner(models.Model):
     name = models.CharField(max_length=64, )
     email = models.EmailField(blank=True, )
     telephone = models.CharField(max_length=20, unique=True)
-
+    # Нужно будет для странички Владельца на сайте
     about = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -37,9 +35,9 @@ class RestingPlaceOwner(models.Model):
 
 class LocationRestingPlace(models.Model):
     """Место отдыха """
-    title = models.CharField(max_length=64, )
+    title = models.CharField(max_length=64, )  # Краткое название
 
-    description = models.TextField(blank=True, )
+    description = models.TextField(blank=True, )  # Описание места
     images = models.ImageField(blank=True, null=True, upload_to="media/images/resting_places")
 
     services = models.ManyToManyField('LocationService', )
@@ -47,7 +45,7 @@ class LocationRestingPlace(models.Model):
     end_work_time = models.TimeField(verbose_name='End time', default='NULL')
     slug = models.SlugField()
 
-    owner = models.ForeignKey(RestingPlaceOwner, on_delete=models.SET_DEFAULT, default='Нет владельца')
+    owner = models.ForeignKey(RestingPlaceOwner, on_delete=models.SET_NULL, null=True, blank=True)
     google_maps_url = models.URLField(blank=True, null=True)
     site_url = models.URLField(blank=True, null=True)
     # Status
@@ -55,7 +53,7 @@ class LocationRestingPlace(models.Model):
     published = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return self.title
 
     class Meta:
         verbose_name = 'Место отдыха'
@@ -65,22 +63,17 @@ class LocationRestingPlace(models.Model):
 class Location(models.Model):
     """Модель с данными локации"""
     name = models.CharField(max_length=64, )
-    district = models.ForeignKey(District, on_delete=models.SET_DEFAULT, default='None')
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
     address = models.CharField(max_length=64)
 
     average_price = models.PositiveIntegerField(default=get_average_price)
 
-    coordinates = models.CharField(max_length=128, default=get_location_coordinates(address))
+    coordinates = models.CharField(max_length=128, default=get_location_coordinates)
     google_maps_url = models.URLField(blank=True, null=True)
     site_url = models.URLField(blank=True, null=True)
 
     description = models.TextField(blank=True, )
     main_image = models.ImageField(blank=True, null=True, upload_to="media/images/locations")
-
-    services = models.ManyToManyField('LocationService', )
-
-    optional_services = models.ManyToManyField('OptionalService', )
-
     slug = models.SlugField()
 
     checked = models.BooleanField(default=False, editable=True)

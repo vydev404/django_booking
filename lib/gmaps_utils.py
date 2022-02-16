@@ -4,7 +4,7 @@
 """ Модуль для парсинга google maps"""
 
 
-def get_location_coordinates(address):
+def get_location_coordinates():
     return "0,0:0,0"
 
 
