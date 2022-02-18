@@ -1,11 +1,11 @@
 from django.db import models
-from lib.pricing import get_average_price
-from lib.gmaps_utils import get_location_coordinates
+from services.pricing import get_average_price
+from services.gmaps_utils import get_location_coordinates
 
 
 class District(models.Model):
     """Район города"""
-    district_id = models.IntegerField(unique=True, default=models.SET_NULL, null=True)
+    district_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=64, )
 
     def __str__(self):
@@ -14,6 +14,33 @@ class District(models.Model):
     class Meta:
         verbose_name = 'Район'
         verbose_name_plural = 'Районы'
+
+
+class Location(models.Model):
+    """Модель с данными локации"""
+    name = models.CharField(max_length=64, )
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
+    address = models.CharField(max_length=64)
+
+    average_price = models.PositiveIntegerField(default=get_average_price)
+
+    coordinates = models.CharField(max_length=128, default=get_location_coordinates)
+    google_maps_url = models.URLField(blank=True, null=True)
+    site_url = models.URLField(blank=True, null=True)
+
+    description = models.TextField(blank=True, )
+    main_image = models.ImageField(blank=True, null=True, upload_to="media/images/locations")
+    slug = models.SlugField()
+
+    checked = models.BooleanField(default=False, editable=True)
+    published = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Локация'
+        verbose_name_plural = 'Локации'
 
 
 class RestingPlaceOwner(models.Model):
@@ -45,6 +72,7 @@ class LocationRestingPlace(models.Model):
     end_work_time = models.TimeField(verbose_name='End time', default='NULL')
     slug = models.SlugField()
 
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     owner = models.ForeignKey(RestingPlaceOwner, on_delete=models.SET_NULL, null=True, blank=True)
     google_maps_url = models.URLField(blank=True, null=True)
     site_url = models.URLField(blank=True, null=True)
@@ -58,33 +86,6 @@ class LocationRestingPlace(models.Model):
     class Meta:
         verbose_name = 'Место отдыха'
         verbose_name_plural = 'Места отдыха'
-
-
-class Location(models.Model):
-    """Модель с данными локации"""
-    name = models.CharField(max_length=64, )
-    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
-    address = models.CharField(max_length=64)
-
-    average_price = models.PositiveIntegerField(default=get_average_price)
-
-    coordinates = models.CharField(max_length=128, default=get_location_coordinates)
-    google_maps_url = models.URLField(blank=True, null=True)
-    site_url = models.URLField(blank=True, null=True)
-
-    description = models.TextField(blank=True, )
-    main_image = models.ImageField(blank=True, null=True, upload_to="media/images/locations")
-    slug = models.SlugField()
-
-    checked = models.BooleanField(default=False, editable=True)
-    published = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Локация'
-        verbose_name_plural = 'Локации'
 
 
 class LocationImages(models.Model):
